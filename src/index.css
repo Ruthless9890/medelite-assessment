@@ -1,0 +1,304 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #F8FAFC;
+  color: #0F172A;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: #1a1a2e;
+  border-bottom: 3px solid #C026D3;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 2px;
+}
+
+.brand-sub {
+  font-size: 10px;
+  color: #94A3B8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.header-badge {
+  background: rgba(192,38,211,0.15);
+  border: 1px solid rgba(192,38,211,0.3);
+  color: #d946ef;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* ── LAYOUT ── */
+.app-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* ── PANELS ── */
+.search-panel,
+.manual-panel {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.search-panel h2,
+.manual-panel h2 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.search-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.manual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* ── FIELDS ── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.field-group input,
+.field-group select {
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-size: 14px;
+  color: #0F172A;
+  background: white;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field-group input:focus,
+.field-group select:focus {
+  border-color: #C026D3;
+  box-shadow: 0 0 0 3px rgba(192,38,211,0.1);
+}
+
+/* ── BUTTONS ── */
+button {
+  padding: 9px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6B21A8, #C026D3);
+  color: white;
+  box-shadow: 0 2px 8px rgba(107,33,168,0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(107,33,168,0.4);
+}
+
+.btn-export {
+  background: linear-gradient(135deg, #1e3a5f, #0EA5E9);
+  color: white;
+  box-shadow: 0 2px 8px rgba(14,165,233,0.3);
+}
+
+.btn-export:hover {
+  transform: translateY(-1px);
+}
+
+/* ── STATUS ── */
+.status-bar {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-loading {
+  background: rgba(14,165,233,0.08);
+  border: 1px solid rgba(14,165,233,0.2);
+  color: #0369A1;
+}
+
+.status-error {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #DC2626;
+}
+
+/* ── RESULTS ── */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.export-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.medicare-link {
+  color: #0EA5E9;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.medicare-link:hover {
+  text-decoration: underline;
+}
+
+/* ── REPORT CARD ── */
+.report-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+}
+
+.report-header {
+  background: linear-gradient(135deg, #1a1a2e, #2d1b69);
+  border-bottom: 3px solid #C026D3;
+  padding: 24px 28px;
+}
+
+.rh-sub {
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  color: #94A3B8;
+  margin-bottom: 6px;
+}
+
+.rh-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 4px;
+  font-family: Georgia, serif;
+  margin-bottom: 10px;
+}
+
+.rh-snapshot {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #CBD5E1;
+}
+
+.rh-state {
+  display: inline-block;
+  margin-left: 8px;
+  background: rgba(192,38,211,0.2);
+  border: 1px solid rgba(192,38,211,0.4);
+  color: #d946ef;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* ── REPORT TABLE ── */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table td {
+  padding: 11px 24px;
+  font-size: 13.5px;
+  border-bottom: 1px solid #E2E8F0;
+  vertical-align: middle;
+}
+
+.report-table tr:last-child td {
+  border-bottom: none;
+}
+
+.report-table td:first-child {
+  font-weight: 600;
+  color: #475569;
+  width: 45%;
+  font-size: 12.5px;
+}
+
+.report-table tr:nth-child(even) td {
+  background: #F8FAFC;
+}
+
+.report-table tr.section-title td {
+  background: #F1F5F9;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #94A3B8;
+  padding: 10px 24px;
+}
+
+/* ── FOOTER ── */
+.app-footer {
+  text-align: center;
+  padding: 20px;
+  color: #94A3B8;
+  font-size: 11px;
+  margin-top: 20px;
+}
