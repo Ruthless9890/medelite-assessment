@@ -129,17 +129,26 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
     ].forEach(([l, v], i) => drawStarRow(l, v, i % 2 === 1))
 
     // --- FOOTER WITH HYPERLINK ---
-    const footerY = 750
+    const footerY = 730
     doc.setFillColor(248, 250, 252)
-    doc.rect(0, footerY - 10, W, 50, 'F')
+    doc.rect(0, footerY - 10, W, 80, 'F')
     doc.setDrawColor(226, 232, 240)
     doc.line(0, footerY - 10, W, footerY - 10)
+
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7.5)
     doc.setTextColor(148, 163, 184)
-    doc.text('Data sourced from CMS Provider Data Catalog · INFINITE — Managed by MEDELITE', 36, footerY + 5)
+    doc.text('Data sourced from CMS Provider Data Catalog  |  INFINITE — Managed by MEDELITE', 36, footerY + 5)
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8.5)
     doc.setTextColor(14, 165, 233)
-    doc.textWithLink('View on Medicare Care Compare →', 36, footerY + 18, { url: medUrl })
+    doc.textWithLink('View Full Profile on Medicare Care Compare', 36, footerY + 22, { url: medUrl })
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7)
+    doc.setTextColor(148, 163, 184)
+    doc.text(medUrl, 36, footerY + 35)
 
     // --- SAVE ---
     const safeName = displayName.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 40)
