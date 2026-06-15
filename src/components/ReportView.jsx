@@ -76,30 +76,29 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
     }
 
     function drawStarRow(label, rating, even) {
-      if (even) {
-        doc.setFillColor(248, 250, 252)
-        doc.rect(col1, y, tableW, rowH, 'F')
-      }
-      doc.setDrawColor(226, 232, 240)
-      doc.setLineWidth(0.3)
-      doc.line(col1, y + rowH, col1 + tableW, y + rowH)
+        if (even) {
+            doc.setFillColor(248, 250, 252)
+            doc.rect(col1, y, tableW, rowH, 'F')
+        }
+        doc.setDrawColor(226, 232, 240)
+        doc.setLineWidth(0.3)
+        doc.line(col1, y + rowH, col1 + tableW, y + rowH)
 
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(8.5)
-      doc.setTextColor(71, 85, 105)
-      doc.text(String(label), col1 + 8, y + 14)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(8.5)
+        doc.setTextColor(71, 85, 105)
+        doc.text(String(label), col1 + 8, y + 14)
 
-      const r = parseInt(rating) || 0
-      for (let i = 1; i <= 5; i++) {
-        doc.setFontSize(10)
-        doc.setTextColor(...(i <= r ? [245, 158, 11] : [209, 213, 219]))
-        doc.text(i <= r ? '●' : '○', col2 + 4 + (i - 1) * 14, y + 15)
-      }
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(8.5)
-      doc.setTextColor(100, 116, 139)
-      doc.text(`${r}/5`, col2 + 78, y + 14)
-      y += rowH
+        const r = parseInt(rating) || 0
+        for (let i = 1; i <= 5; i++) {
+            doc.setFillColor(...(i <= r ? [245, 158, 11] : [209, 213, 219]))
+            doc.roundedRect(col2 + 4 + (i - 1) * 16, y + 6, 10, 10, 2, 2, 'F')
+        }
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(8.5)
+        doc.setTextColor(100, 116, 139)
+        doc.text(`${r}/5`, col2 + 90, y + 14)
+        y += rowH
     }
 
     // --- SECTIONS ---
