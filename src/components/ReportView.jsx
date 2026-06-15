@@ -1,6 +1,8 @@
 import React from 'react'
 import StarRating from './StarRating'
 import { jsPDF } from 'jspdf'
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, BorderStyle, ShadingType, AlignmentType, ExternalHyperlink } from 'docx'
+import { saveAs } from 'file-saver'
 
 function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, ccn }) {
 
@@ -45,12 +47,162 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
     ]
   }
 
+  async function downloadDOCX() {
+    const address = [facility.provider_address, facility.citytown, facility.state, facility.zip_code].filter(Boolean).join(', ')
+    const metrics = getHospMetrics()
+
+    const noBorder = {
+      top: { style: BorderStyle.NONE },
+      bottom: { style: BorderStyle.SINGLE, size: 1, color: 'E2E8F0' },
+      left: { style: BorderStyle.NONE },
+      right: { style: BorderStyle.NONE },
+    }
+
+    function headerRow(text) {
+      return new TableRow({
+        children: [
+          new TableCell({
+            columnSpan: 2,
+            shading: { type: ShadingType.SOLID, color: 'F1F5F9' },
+            borders: noBorder,
+            children: [new Paragraph({
+              children: [new TextRun({ text, bold: true, size: 16, color: '94A3B8', allCaps: true })]
+            })]
+          })
+        ]
+      })
+    }
+
+    function dataRow(label, value, shaded = false) {
+      return new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 45, type: WidthType.PERCENTAGE },
+            shading: shaded ? { type: ShadingType.SOLID, color: 'F8FAFC' } : undefined,
+            borders: noBorder,
+            children: [new Paragraph({
+              children: [new TextRun({ text: String(label), bold: true, size: 18, color: '475569' })]
+            })]
+          }),
+          new TableCell({
+            width: { size: 55, type: WidthType.PERCENTAGE },
+            shading: shaded ? { type: ShadingType.SOLID, color: 'F8FAFC' } : undefined,
+            borders: noBorder,
+            children: [new Paragraph({
+              children: [new TextRun({ text: String(value || '—'), size: 18, color: '0F172A' })]
+            })]
+          }),
+        ]
+      })
+    }
+
+    function subRow(label, value) {
+      return new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 45, type: WidthType.PERCENTAGE },
+            borders: noBorder,
+            children: [new Paragraph({
+              indent: { left: 400 },
+              children: [new TextRun({ text: String(label), size: 16, color: '94A3B8' })]
+            })]
+          }),
+          new TableCell({
+            width: { size: 55, type: WidthType.PERCENTAGE },
+            borders: noBorder,
+            children: [new Paragraph({
+              children: [new TextRun({ text: String(value || '—'), size: 16, color: '94A3B8' })]
+            })]
+          }),
+        ]
+      })
+    }
+
+    function starText(rating) {
+      const r = parseInt(rating) || 0
+      return `${'■'.repeat(r)}${'□'.repeat(5 - r)}  ${r}/5`
+    }
+
+    const wordDoc = new Document({
+      sections: [{
+        children: [
+          new Paragraph({
+            children: [new TextRun({ text: 'MANAGED BY MEDELITE', size: 16, color: '94A3B8', allCaps: true })]
+          }),
+          new Paragraph({
+            children: [new TextRun({ text: 'INFINITE', bold: true, size: 52, color: '1a1a2e' })]
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: 'FACILITY ASSESSMENT SNAPSHOT  ', bold: true, size: 20, color: '334155', allCaps: true }),
+              new TextRun({ text: state, bold: true, size: 20, color: 'C026D3' }),
+            ]
+          }),
+          new Paragraph({ text: '' }),
+
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              headerRow('Facility Information'),
+              dataRow('Name of Facility', displayName, false),
+              dataRow('Location', address, true),
+              dataRow('EMR', manualInputs.emr || '—', false),
+              dataRow('Census Capacity', facility.number_of_certified_beds || '—', true),
+              dataRow('Current Census', manualInputs.census || '—', false),
+              dataRow('Type of Patient', manualInputs.patientType || '—', true),
+
+              headerRow('Medelite History'),
+              dataRow('Previous Coverage from Medelite', manualInputs.prevCoverage || '—', false),
+              dataRow('Previous Provider Performance', manualInputs.prevPerf || '—', true),
+              dataRow('Medical Coverage', manualInputs.medCoverage || '—', false),
+
+              headerRow('CMS Star Ratings'),
+              dataRow('Overall Star Rating', starText(facility.overall_rating), false),
+              dataRow('Health Inspection', starText(facility.health_inspection_rating), true),
+              dataRow('Staffing', starText(facility.staffing_rating), false),
+              dataRow('Quality of Resident Care', starText(facility.qm_rating), true),
+
+              headerRow('Hospitalization & ED Metrics'),
+              ...metrics.flatMap((m, i) => {
+                const fval = m.facility ? `${parseFloat(m.facility).toFixed(2)}${m.unit}` : '—'
+                const nval = m.national ? `${parseFloat(m.national).toFixed(2)}${m.unit}` : '—'
+                const sval = m.state ? `${parseFloat(m.state).toFixed(2)}${m.unit}` : '—'
+                return [
+                  dataRow(m.label, fval, i % 2 === 0),
+                  subRow('National Avg.', nval),
+                  subRow('State Avg.', sval),
+                ]
+              }),
+            ]
+          }),
+
+          new Paragraph({ text: '' }),
+          new Paragraph({
+            children: [new TextRun({ text: 'Data sourced from CMS Provider Data Catalog  |  INFINITE — Managed by MEDELITE', size: 14, color: '94A3B8' })]
+          }),
+          new Paragraph({
+            children: [
+                new TextRun({ text: 'Medicare Care Compare: ', size: 14, color: '94A3B8' }),
+                new ExternalHyperlink({
+                link: medUrl,
+                children: [new TextRun({ text: medUrl, size: 14, color: '0EA5E9', underline: {} })]
+                })
+            ]
+          }),
+        ]
+      }]
+    })
+
+    const blob = await Packer.toBlob(wordDoc)
+    const safeName = displayName.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 40)
+    saveAs(blob, `Medelite_Assessment_${safeName}_${ccn}.docx`)
+  }
+
   function downloadPDF() {
     const doc = new jsPDF({ unit: 'pt', format: 'letter' })
     const W = 612
     let y = 0
 
-    // --- HEADER ---
     doc.setFillColor(26, 26, 46)
     doc.rect(0, 0, W, 95, 'F')
     doc.setFillColor(192, 38, 211)
@@ -77,7 +229,6 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
 
     y = 110
 
-    // --- TABLE HELPERS ---
     const col1 = 36
     const col2 = 260
     const tableW = W - 72
@@ -91,12 +242,10 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       doc.setDrawColor(226, 232, 240)
       doc.setLineWidth(0.3)
       doc.line(col1, y + rowH, col1 + tableW, y + rowH)
-
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(8.5)
       doc.setTextColor(71, 85, 105)
       doc.text(String(label), col1 + 8, y + 14)
-
       doc.setFont('helvetica', 'normal')
       doc.setTextColor(15, 23, 42)
       doc.text(String(value || '—'), col2 + 4, y + 14)
@@ -121,12 +270,10 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       doc.setDrawColor(226, 232, 240)
       doc.setLineWidth(0.3)
       doc.line(col1, y + rowH, col1 + tableW, y + rowH)
-
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(8.5)
       doc.setTextColor(71, 85, 105)
       doc.text(String(label), col1 + 8, y + 14)
-
       const r = parseInt(rating) || 0
       for (let i = 1; i <= 5; i++) {
         doc.setFillColor(...(i <= r ? [245, 158, 11] : [209, 213, 219]))
@@ -143,7 +290,6 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       doc.setDrawColor(226, 232, 240)
       doc.setLineWidth(0.3)
       doc.line(col1, y + rowH, col1 + tableW, y + rowH)
-
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(7.5)
       doc.setTextColor(148, 163, 184)
@@ -152,7 +298,6 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       y += rowH
     }
 
-    // --- SECTIONS ---
     drawSectionTitle('Facility Information')
     const address = [facility.provider_address, facility.citytown, facility.state, facility.zip_code].filter(Boolean).join(', ')
     ;[
@@ -179,7 +324,6 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       ['Quality of Resident Care', facility.qm_rating],
     ].forEach(([l, v], i) => drawStarRow(l, v, i % 2 === 1))
 
-    // --- HOSPITALIZATION METRICS ---
     drawSectionTitle('Hospitalization & ED Metrics')
     getHospMetrics().forEach((m, i) => {
       const fval = m.facility ? `${parseFloat(m.facility).toFixed(2)}${m.unit}` : '—'
@@ -190,29 +334,24 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       drawSubRow('State Avg.', sval)
     })
 
-    // --- FOOTER WITH HYPERLINK ---
     const footerY = 730
     doc.setFillColor(248, 250, 252)
     doc.rect(0, footerY - 10, W, 80, 'F')
     doc.setDrawColor(226, 232, 240)
     doc.line(0, footerY - 10, W, footerY - 10)
-
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7.5)
     doc.setTextColor(148, 163, 184)
     doc.text('Data sourced from CMS Provider Data Catalog  |  INFINITE — Managed by MEDELITE', 36, footerY + 5)
-
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(8.5)
     doc.setTextColor(14, 165, 233)
     doc.textWithLink('View Full Profile on Medicare Care Compare', 36, footerY + 22, { url: medUrl })
-
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7)
     doc.setTextColor(148, 163, 184)
     doc.text(medUrl, 36, footerY + 35)
 
-    // --- SAVE ---
     const safeName = displayName.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 40)
     doc.save(`Medelite_Assessment_${safeName}_${ccn}.pdf`)
   }
@@ -223,6 +362,9 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       <div className="export-bar">
         <button className="btn-export" onClick={downloadPDF}>
           ⬇ Download PDF
+        </button>
+        <button className="btn-export" onClick={downloadDOCX}>
+          ⬇ Download Word Doc
         </button>
         <a href={medUrl} target="_blank" rel="noreferrer" className="medicare-link">
           View on Medicare Care Compare →
