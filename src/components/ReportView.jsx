@@ -1,3 +1,4 @@
+import React from 'react'
 import StarRating from './StarRating'
 import { jsPDF } from 'jspdf'
 
@@ -6,6 +7,43 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
   const displayName = nameOverride || facility.provider_name
   const state = facility.state || ''
   const medUrl = `https://www.medicare.gov/care-compare/details/nursing-home/${ccn}`
+
+  function getHospMetrics() {
+    const nat = stateAvgs.national
+    const st = stateAvgs.state
+    const c = claims
+
+    return [
+      {
+        label: 'Short Term Hospitalization',
+        facility: c['521']?.adjusted_score,
+        national: nat.percentage_of_short_stay_residents_who_were_rehospitalized__1d02,
+        state: st.percentage_of_short_stay_residents_who_were_rehospitalized__1d02,
+        unit: '%'
+      },
+      {
+        label: 'STR ED Visit',
+        facility: c['522']?.adjusted_score,
+        national: nat.percentage_of_short_stay_residents_who_had_an_outpatient_em_d911,
+        state: st.percentage_of_short_stay_residents_who_had_an_outpatient_em_d911,
+        unit: '%'
+      },
+      {
+        label: 'LT Hospitalization',
+        facility: c['551']?.adjusted_score,
+        national: nat.number_of_hospitalizations_per_1000_longstay_resident_days,
+        state: st.number_of_hospitalizations_per_1000_longstay_resident_days,
+        unit: ''
+      },
+      {
+        label: 'LT ED Visit',
+        facility: c['552']?.adjusted_score,
+        national: nat.number_of_outpatient_emergency_department_visits_per_1000_l_de9d,
+        state: st.number_of_outpatient_emergency_department_visits_per_1000_l_de9d,
+        unit: ''
+      },
+    ]
+  }
 
   function downloadPDF() {
     const doc = new jsPDF({ unit: 'pt', format: 'letter' })
@@ -76,29 +114,42 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
     }
 
     function drawStarRow(label, rating, even) {
-        if (even) {
-            doc.setFillColor(248, 250, 252)
-            doc.rect(col1, y, tableW, rowH, 'F')
-        }
-        doc.setDrawColor(226, 232, 240)
-        doc.setLineWidth(0.3)
-        doc.line(col1, y + rowH, col1 + tableW, y + rowH)
+      if (even) {
+        doc.setFillColor(248, 250, 252)
+        doc.rect(col1, y, tableW, rowH, 'F')
+      }
+      doc.setDrawColor(226, 232, 240)
+      doc.setLineWidth(0.3)
+      doc.line(col1, y + rowH, col1 + tableW, y + rowH)
 
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(8.5)
-        doc.setTextColor(71, 85, 105)
-        doc.text(String(label), col1 + 8, y + 14)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8.5)
+      doc.setTextColor(71, 85, 105)
+      doc.text(String(label), col1 + 8, y + 14)
 
-        const r = parseInt(rating) || 0
-        for (let i = 1; i <= 5; i++) {
-            doc.setFillColor(...(i <= r ? [245, 158, 11] : [209, 213, 219]))
-            doc.roundedRect(col2 + 4 + (i - 1) * 16, y + 6, 10, 10, 2, 2, 'F')
-        }
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(8.5)
-        doc.setTextColor(100, 116, 139)
-        doc.text(`${r}/5`, col2 + 90, y + 14)
-        y += rowH
+      const r = parseInt(rating) || 0
+      for (let i = 1; i <= 5; i++) {
+        doc.setFillColor(...(i <= r ? [245, 158, 11] : [209, 213, 219]))
+        doc.roundedRect(col2 + 4 + (i - 1) * 16, y + 6, 10, 10, 2, 2, 'F')
+      }
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8.5)
+      doc.setTextColor(100, 116, 139)
+      doc.text(`${r}/5`, col2 + 90, y + 14)
+      y += rowH
+    }
+
+    function drawSubRow(label, value) {
+      doc.setDrawColor(226, 232, 240)
+      doc.setLineWidth(0.3)
+      doc.line(col1, y + rowH, col1 + tableW, y + rowH)
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(7.5)
+      doc.setTextColor(148, 163, 184)
+      doc.text(String(label), col1 + 20, y + 14)
+      doc.text(String(value || '—'), col2 + 4, y + 14)
+      y += rowH
     }
 
     // --- SECTIONS ---
@@ -127,6 +178,17 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
       ['Staffing', facility.staffing_rating],
       ['Quality of Resident Care', facility.qm_rating],
     ].forEach(([l, v], i) => drawStarRow(l, v, i % 2 === 1))
+
+    // --- HOSPITALIZATION METRICS ---
+    drawSectionTitle('Hospitalization & ED Metrics')
+    getHospMetrics().forEach((m, i) => {
+      const fval = m.facility ? `${parseFloat(m.facility).toFixed(2)}${m.unit}` : '—'
+      const nval = m.national ? `${parseFloat(m.national).toFixed(2)}${m.unit}` : '—'
+      const sval = m.state ? `${parseFloat(m.state).toFixed(2)}${m.unit}` : '—'
+      drawRow(m.label, fval, i % 2 === 0)
+      drawSubRow('National Avg.', nval)
+      drawSubRow('State Avg.', sval)
+    })
 
     // --- FOOTER WITH HYPERLINK ---
     const footerY = 730
@@ -195,6 +257,24 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
             <tr><td>Health Inspection</td><td><StarRating rating={parseInt(facility.health_inspection_rating)} /></td></tr>
             <tr><td>Staffing</td><td><StarRating rating={parseInt(facility.staffing_rating)} /></td></tr>
             <tr><td>Quality of Resident Care</td><td><StarRating rating={parseInt(facility.qm_rating)} /></td></tr>
+
+            <tr className="section-title"><td colSpan={2}>Hospitalization & ED Metrics</td></tr>
+            {getHospMetrics().map((m) => (
+              <React.Fragment key={m.label}>
+                <tr>
+                  <td>{m.label}</td>
+                  <td>{m.facility ? `${parseFloat(m.facility).toFixed(2)}${m.unit}` : '—'}</td>
+                </tr>
+                <tr>
+                  <td style={{paddingLeft: '36px', color: '#94A3B8', fontSize: '12px'}}>National Avg.</td>
+                  <td style={{color: '#94A3B8', fontSize: '12px'}}>{m.national ? `${parseFloat(m.national).toFixed(2)}${m.unit}` : '—'}</td>
+                </tr>
+                <tr>
+                  <td style={{paddingLeft: '36px', color: '#94A3B8', fontSize: '12px'}}>State Avg.</td>
+                  <td style={{color: '#94A3B8', fontSize: '12px'}}>{m.state ? `${parseFloat(m.state).toFixed(2)}${m.unit}` : '—'}</td>
+                </tr>
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
 

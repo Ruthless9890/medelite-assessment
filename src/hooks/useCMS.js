@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+const IS_DEV = window.location.hostname === 'localhost'
+const PROXY = 'https://corsproxy.io/?url='
 const CMS_BASE = 'https://data.cms.gov/provider-data/api/1/datastore/query'
 const DS_PROVIDER = '4pq5-n9py'
 const DS_CLAIMS = 'ijh5-nb2v'
@@ -46,8 +48,8 @@ export function useCMS() {
       try {
         const state = facilityResult.state
         const [stateRes, natRes] = await Promise.all([
-          cmsQuery(DS_STATE_AVG, [{ property: 'state_us', value: state }]),
-          cmsQuery(DS_STATE_AVG, [{ property: 'state_us', value: 'US' }])
+          cmsQuery(DS_STATE_AVG, [{ property: 'state_or_nation', value: state }]),
+          cmsQuery(DS_STATE_AVG, [{ property: 'state_or_nation', value: 'NATION' }])
         ])
         setStateAvgs({
           state: stateRes.results?.[0] || {},
@@ -75,7 +77,9 @@ async function cmsQuery(dataset, conditions, limit = 1) {
     params.set(`conditions[${i}][operator]`, c.operator || '=')
   })
   const cmsUrl = `${CMS_BASE}/${dataset}/0?${params}`
-  const url = `/api/cms?url=${encodeURIComponent(cmsUrl)}`
+  const url = IS_DEV
+    ? PROXY + encodeURIComponent(cmsUrl)
+    : `/api/cms?url=${encodeURIComponent(cmsUrl)}`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`CMS API error: ${res.status}`)
   return res.json()
