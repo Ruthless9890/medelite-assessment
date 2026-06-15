@@ -75,9 +75,8 @@ async function cmsQuery(dataset, conditions, limit = 1) {
     params.set(`conditions[${i}][operator]`, c.operator || '=')
   })
   const cmsUrl = `${CMS_BASE}/${dataset}/0?${params}`
-  const url = `https://api.allorigins.win/get?url=${encodeURIComponent(cmsUrl)}`
+  const url = `/api/cms?url=${encodeURIComponent(cmsUrl)}`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`CMS API error: ${res.status}`)
-  const data = await res.json()
-  return JSON.parse(data.contents)
+  return res.json()
 }
