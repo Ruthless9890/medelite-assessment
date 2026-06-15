@@ -35,7 +35,7 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
 
     doc.setFontSize(8)
     doc.setTextColor(217, 70, 239)
-    doc.text(state, 36 + doc.getTextWidth('FACILITY ASSESSMENT SNAPSHOT') + 10, 72)
+    doc.text(state, 36 + doc.getTextWidth('FACILITY ASSESSMENT SNAPSHOT') + 14, 72)
 
     y = 110
 
@@ -91,10 +91,14 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
 
       const r = parseInt(rating) || 0
       for (let i = 1; i <= 5; i++) {
-        doc.setFontSize(12)
+        doc.setFontSize(10)
         doc.setTextColor(...(i <= r ? [245, 158, 11] : [209, 213, 219]))
-        doc.text('★', col2 + 4 + (i - 1) * 14, y + 15)
+        doc.text(i <= r ? '●' : '○', col2 + 4 + (i - 1) * 14, y + 15)
       }
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8.5)
+      doc.setTextColor(100, 116, 139)
+      doc.text(`${r}/5`, col2 + 78, y + 14)
       y += rowH
     }
 
