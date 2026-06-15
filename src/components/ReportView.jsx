@@ -35,7 +35,7 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
 
     doc.setFontSize(8)
     doc.setTextColor(217, 70, 239)
-    doc.text(`  ${state}`, 36 + doc.getTextWidth('FACILITY ASSESSMENT SNAPSHOT') + 14, 72)
+    doc.text(`  ${state}`, 36 + doc.getTextWidth('FACILITY ASSESSMENT SNAPSHOT') + 24, 72)
 
     y = 110
 
