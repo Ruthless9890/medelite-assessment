@@ -6,10 +6,12 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES2024-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)
 ![CMS API](https://img.shields.io/badge/CMS-Provider%20Data%20Catalog-005EA2?style=for-the-badge&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 > A lightweight healthcare intelligence web application that automates nursing facility evaluation for Medelite Directors — replacing manual database searches with a single CCN lookup.
 
-**🔗 Live Demo:** [medelite-assessment.vercel.app](https://medelite-assessment.vercel.app)
+**🔗 Live Demo:** [medelite-assessment.vercel.app](https://medelite-assessment.vercel.app)  
+**📁 Repository:** [github.com/Ruthless9890/medelite-assessment](https://github.com/Ruthless9890/medelite-assessment)
 
 ---
 
@@ -48,48 +50,36 @@ Enter a facility's **CMS Certification Number (CCN)** → the app instantly fetc
 ---
 
 ## Tech Stack
+
+```text
 Frontend:   React 18 + Vite 5
-
 Styling:    Pure CSS with CSS Variables
-
 PDF:        jsPDF
-
 DOCX:       docx + file-saver
-
 API:        CMS Provider Data Catalog (data.cms.gov)
-
 Proxy:      Vercel Serverless Function (CORS handling)
-
 Deployment: Vercel
+```
 
 ---
 
 ## Architecture
+
+```text
 src/
-
 ├── components/
-
 │   ├── SearchPanel.jsx     # CCN input with live validation
-
 │   ├── ManualInputs.jsx    # Operational details form
-
 │   ├── ReportView.jsx      # Full report + PDF/DOCX export
-
 │   ├── MetricCards.jsx     # Color-coded performance cards
-
 │   └── StarRating.jsx      # Reusable star rating display
-
 ├── hooks/
-
 │   └── useCMS.js           # CMS API data fetching hook
-
 ├── App.jsx                 # Root component + state management
-
 └── index.css               # Global styles + design system
-
 api/
-
 └── cms.js                  # Vercel serverless CORS proxy
+```
 
 ---
 
@@ -164,16 +154,29 @@ Open [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## Screenshots
+## License
 
-### Facility Lookup & Performance Cards
-> Enter any valid CCN to instantly pull CMS data and view color-coded performance metrics
+This project is licensed under the MIT License.
 
-### Full Assessment Report
-> Complete facility report with star ratings, hospitalization metrics, and export options
+```text
+MIT License
 
-### PDF Export
-> Print-ready branded document with clickable Medicare Care Compare hyperlink
+Copyright (c) 2026 Ragavan Arivazhagan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+```
 
 ---
 
