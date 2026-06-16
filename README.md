@@ -1,16 +1,181 @@
-# React + Vite
+# INFINITE — Managed by MEDELITE
+### Facility Assessment Report Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES2024-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![CMS API](https://img.shields.io/badge/CMS-Provider%20Data%20Catalog-005EA2?style=for-the-badge&logoColor=white)
 
-Currently, two official plugins are available:
+> A lightweight healthcare intelligence web application that automates nursing facility evaluation for Medelite Directors — replacing manual database searches with a single CCN lookup.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**🔗 Live Demo:** [medelite-assessment.vercel.app](https://medelite-assessment.vercel.app)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Overview
 
-## Expanding the ESLint configuration
+Medelite Directors currently evaluate skilled nursing facilities by manually searching through public CMS databases and copying data into Word documents. This tool eliminates that process entirely.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Enter a facility's **CMS Certification Number (CCN)** → the app instantly fetches live government data, combines it with internal operational inputs, and generates a polished **PDF** or editable **Word document** — in seconds.
+
+---
+
+## Features
+
+### ✅ Core MVP
+
+| Feature | Description |
+|---|---|
+| **Dynamic CCN Lookup** | Fetches live data from the CMS Provider Data Catalog API for any valid facility |
+| **Facility Name Override** | Replace the official CMS name with an internal Medelite name on the output |
+| **Manual Operational Inputs** | EMR system, current census, patient type, Medelite history fields |
+| **PDF Export** | One-click download of a polished, print-ready branded PDF |
+| **Medicare Hyperlink** | Clickable link to the facility's Medicare Care Compare profile in the PDF |
+| **INFINITE Branding** | Hardcoded corporate brand header — never overwritten by facility data |
+| **Live Deployment** | Hosted on Vercel with a public URL |
+
+### 🚀 Bonus Features
+
+| Feature | Description |
+|---|---|
+| **12 Hospitalization/ED Metrics** | Full suite of STR and LT hospitalization/ED metrics with state and national averages |
+| **Word Document Export** | Editable `.docx` download with full report data and clickable Medicare hyperlink |
+| **Performance Cards** | Color-coded metric cards showing facility performance vs. national average |
+| **Advanced Error Handling** | CCN format validation, friendly API error messages, network failure handling |
+| **Responsive Design** | Fully responsive layout for desktop and tablet |
+
+---
+
+## Tech Stack
+Frontend:   React 18 + Vite 5
+
+Styling:    Pure CSS with CSS Variables
+
+PDF:        jsPDF
+
+DOCX:       docx + file-saver
+
+API:        CMS Provider Data Catalog (data.cms.gov)
+
+Proxy:      Vercel Serverless Function (CORS handling)
+
+Deployment: Vercel
+
+---
+
+## Architecture
+src/
+
+├── components/
+
+│   ├── SearchPanel.jsx     # CCN input with live validation
+
+│   ├── ManualInputs.jsx    # Operational details form
+
+│   ├── ReportView.jsx      # Full report + PDF/DOCX export
+
+│   ├── MetricCards.jsx     # Color-coded performance cards
+
+│   └── StarRating.jsx      # Reusable star rating display
+
+├── hooks/
+
+│   └── useCMS.js           # CMS API data fetching hook
+
+├── App.jsx                 # Root component + state management
+
+└── index.css               # Global styles + design system
+
+api/
+
+└── cms.js                  # Vercel serverless CORS proxy
+
+---
+
+## CMS Data Sources
+
+| Dataset | ID | Description |
+|---|---|---|
+| Provider Information | `4pq5-n9py` | Facility details, star ratings, bed count |
+| Medicare Claims Quality Measures | `ijh5-nb2v` | Hospitalization & ED visit metrics |
+| State/US Averages | `xcdc-v8bm` | State and national benchmarks |
+
+---
+
+## Engineering Decisions
+
+**Why React + Vite over Next.js?**
+This is a client-side tool with no SEO requirements. React + Vite gives instant hot reload during development and a lean production bundle — Next.js would add unnecessary complexity.
+
+**Why a Vercel Serverless Function for the API?**
+The CMS API enforces CORS restrictions on browser requests. Rather than relying on third-party proxies, I built a lightweight Vercel serverless function that proxies requests server-side — more reliable, faster, and production-grade.
+
+**Why metric cards instead of charts?**
+Charts work best for time-series data. Since each metric has a single current value compared against two benchmarks, color-coded cards communicate performance status more clearly than a bar chart would.
+
+**Why rectangles instead of star characters in the PDF?**
+jsPDF's built-in fonts don't support Unicode star characters without embedding a custom font file. Colored rating squares are cleaner and avoid adding font files to the bundle.
+
+**Why lazy validation on CCN input?**
+Showing errors before the user has finished typing is poor UX. Errors trigger on first submit, then update live as the user corrects their input — the same pattern used by Stripe and Figma.
+
+---
+
+## Getting Started
+
+```bash
+# Clone the repo
+git clone https://github.com/Ruthless9890/medelite-assessment.git
+cd medelite-assessment
+
+# Install dependencies
+npm install
+
+# Run locally
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173)
+
+**Test with CCN:** `686123` — Kendall Lakes Healthcare and Rehab Center, Miami FL
+
+---
+
+## Validation Test Cases
+
+| Input | Expected Result |
+|---|---|
+| Empty CCN | "Please enter a CCN" |
+| `abcdef` | "CCN must contain numbers only" |
+| `123` | "CCN must be exactly 6 digits" |
+| `000000` | "No facility found" error |
+| `686123` | Loads Kendall Lakes Healthcare, Miami FL |
+| `105447` | Loads different facility successfully |
+
+---
+
+## Assumptions & Notes
+
+- **Data currency:** The CMS Provider Data Catalog updates quarterly. Star ratings and metrics reflect the most recent CMS data, which may differ from older internal snapshots.
+- **CORS handling:** CMS blocks direct browser requests. In development, a public CORS proxy is used. In production, a Vercel serverless function handles this cleanly.
+- **CCN format:** Validated as exactly 6 numeric digits per CMS specification.
+- **AI assistance:** AI tools were used during development as encouraged in the brief. All code has been reviewed, understood, and can be explained line-by-line.
+
+---
+
+## Screenshots
+
+### Facility Lookup & Performance Cards
+> Enter any valid CCN to instantly pull CMS data and view color-coded performance metrics
+
+### Full Assessment Report
+> Complete facility report with star ratings, hospitalization metrics, and export options
+
+### PDF Export
+> Print-ready branded document with clickable Medicare Care Compare hyperlink
+
+---
+
+*Built for the Medelite Healthcare Data Automation & QA Analytics Internship Assessment*  
+*Data sourced from the CMS Provider Data Catalog — a public domain U.S. government resource*
