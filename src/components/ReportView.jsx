@@ -1,7 +1,7 @@
 import React from 'react'
 import StarRating from './StarRating'
 import { jsPDF } from 'jspdf'
-import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, BorderStyle, ShadingType, AlignmentType, ExternalHyperlink } from 'docx'
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, BorderStyle, ShadingType, ExternalHyperlink } from 'docx'
 import { saveAs } from 'file-saver'
 import MetricCards from './MetricCards'
 
@@ -183,11 +183,11 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
           }),
           new Paragraph({
             children: [
-                new TextRun({ text: 'Medicare Care Compare: ', size: 14, color: '94A3B8' }),
-                new ExternalHyperlink({
+              new TextRun({ text: 'Medicare Care Compare: ', size: 14, color: '94A3B8' }),
+              new ExternalHyperlink({
                 link: medUrl,
                 children: [new TextRun({ text: medUrl, size: 14, color: '0EA5E9', underline: {} })]
-                })
+              })
             ]
           }),
         ]
@@ -361,14 +361,15 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
     <div className="results">
 
       <div className="export-bar">
-        <button className="btn-export" onClick={downloadPDF}>
-          ⬇ Download PDF
+        <span className="export-bar-label">Export</span>
+        <button className="btn-export-pdf" onClick={downloadPDF}>
+          ↓ Download PDF
         </button>
-        <button className="btn-export" onClick={downloadDOCX}>
-          ⬇ Download Word Doc
+        <button className="btn-export-docx" onClick={downloadDOCX}>
+          ↓ Export .docx
         </button>
         <a href={medUrl} target="_blank" rel="noreferrer" className="medicare-link">
-          View on Medicare Care Compare →
+          Medicare Care Compare ↗
         </a>
       </div>
 
@@ -379,7 +380,10 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
         <div className="report-header">
           <div className="rh-sub">MANAGED BY MEDELITE</div>
           <div className="rh-title">INFINITE</div>
-          <div className="rh-snapshot">FACILITY ASSESSMENT SNAPSHOT <span className="rh-state">{state}</span></div>
+          <div className="rh-snapshot">
+            FACILITY ASSESSMENT SNAPSHOT
+            <span className="rh-state">{state}</span>
+          </div>
         </div>
 
         <table className="report-table">

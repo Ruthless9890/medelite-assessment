@@ -42,10 +42,11 @@ function SearchPanel({ onSearch, loading }) {
             onChange={handleCCNChange}
             onKeyDown={e => e.key === 'Enter' && !loading && handleSearch()}
             maxLength={6}
+            className="ccn-input"
             style={validationError ? { borderColor: '#EF4444', boxShadow: '0 0 0 3px rgba(239,68,68,0.1)' } : {}}
           />
           {validationError && (
-            <span style={{ fontSize: '11px', color: '#EF4444', marginTop: '4px', fontWeight: '500' }}>
+            <span style={{ fontSize: '11px', color: '#EF4444', marginTop: '4px', fontWeight: '600' }}>
               ⚠ {validationError}
             </span>
           )}
@@ -66,7 +67,7 @@ function SearchPanel({ onSearch, loading }) {
           onClick={handleSearch}
           disabled={loading}
         >
-          {loading ? 'Fetching...' : 'Fetch Facility Data'}
+          {loading ? '⏳ Fetching...' : '→ Fetch Facility Data'}
         </button>
 
       </div>
