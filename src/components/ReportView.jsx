@@ -3,6 +3,7 @@ import StarRating from './StarRating'
 import { jsPDF } from 'jspdf'
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, BorderStyle, ShadingType, AlignmentType, ExternalHyperlink } from 'docx'
 import { saveAs } from 'file-saver'
+import MetricCards from './MetricCards'
 
 function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, ccn }) {
 
@@ -370,6 +371,8 @@ function ReportView({ facility, claims, stateAvgs, manualInputs, nameOverride, c
           View on Medicare Care Compare →
         </a>
       </div>
+
+      <MetricCards metrics={getHospMetrics()} />
 
       <div className="report-card">
 

@@ -3,13 +3,29 @@ import { useState } from 'react'
 function SearchPanel({ onSearch, loading }) {
   const [ccn, setCcn] = useState('')
   const [nameOverride, setNameOverride] = useState('')
+  const [validationError, setValidationError] = useState(null)
+
+  function validateCCN(value) {
+    if (!value.trim()) return 'Please enter a CCN'
+    if (!/^\d+$/.test(value.trim())) return 'CCN must contain numbers only'
+    if (value.trim().length !== 6) return 'CCN must be exactly 6 digits'
+    return null
+  }
 
   function handleSearch() {
-    if (!ccn.trim()) {
-      alert('Please enter a CCN')
+    const error = validateCCN(ccn)
+    if (error) {
+      setValidationError(error)
       return
     }
+    setValidationError(null)
     onSearch(ccn.trim(), nameOverride.trim())
+  }
+
+  function handleCCNChange(e) {
+    const val = e.target.value
+    setCcn(val)
+    if (validationError) setValidationError(validateCCN(val))
   }
 
   return (
@@ -23,12 +39,19 @@ function SearchPanel({ onSearch, loading }) {
             type="text"
             placeholder="e.g. 686123"
             value={ccn}
-            onChange={e => setCcn(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            onChange={handleCCNChange}
+            onKeyDown={e => e.key === 'Enter' && !loading && handleSearch()}
+            maxLength={6}
+            style={validationError ? { borderColor: '#EF4444', boxShadow: '0 0 0 3px rgba(239,68,68,0.1)' } : {}}
           />
+          {validationError && (
+            <span style={{ fontSize: '11px', color: '#EF4444', marginTop: '4px', fontWeight: '500' }}>
+              ⚠ {validationError}
+            </span>
+          )}
         </div>
 
-        <div className="field-group">
+        <div className="field-group grow">
           <label>Facility Name Override (optional)</label>
           <input
             type="text"
@@ -38,7 +61,11 @@ function SearchPanel({ onSearch, loading }) {
           />
         </div>
 
-        <button onClick={handleSearch} disabled={loading}>
+        <button
+          className="btn-primary"
+          onClick={handleSearch}
+          disabled={loading}
+        >
           {loading ? 'Fetching...' : 'Fetch Facility Data'}
         </button>
 

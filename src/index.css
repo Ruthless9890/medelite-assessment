@@ -302,3 +302,17 @@ button:disabled {
   font-size: 11px;
   margin-top: 20px;
 }
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(3,105,161,0.2);
+  border-top-color: #0369A1;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

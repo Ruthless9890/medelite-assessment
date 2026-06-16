@@ -5,10 +5,8 @@ import ManualInputs from './components/ManualInputs'
 import ReportView from './components/ReportView'
 
 function App() {
-  // CMS data from our custom hook
   const { facility, claims, stateAvgs, loading, error, fetchFacility } = useCMS()
 
-  // Manual inputs state — one object holds all fields
   const [manualInputs, setManualInputs] = useState({
     emr: '',
     census: '',
@@ -18,21 +16,40 @@ function App() {
     medCoverage: ''
   })
 
-  // Track the CCN and name override separately
   const [currentCCN, setCurrentCCN] = useState('')
   const [nameOverride, setNameOverride] = useState('')
 
-  // This runs when user clicks "Fetch Facility Data"
   function handleSearch(ccn, name) {
     setCurrentCCN(ccn)
     setNameOverride(name)
+    // Reset manual inputs on new search
+    setManualInputs({
+      emr: '',
+      census: '',
+      patientType: '',
+      prevCoverage: '',
+      prevPerf: '',
+      medCoverage: ''
+    })
     fetchFacility(ccn)
   }
+
+  function getFriendlyError(err) {
+    if (!err) return null
+    if (err.includes('No facility found')) return `No facility found for CCN "${currentCCN}". Please check the number and try again.`
+    if (err.includes('403')) return 'Access denied by CMS API. Please try again in a moment.'
+    if (err.includes('404')) return 'CMS API endpoint not found. Please try again later.'
+    if (err.includes('408')) return 'Request timed out. Please check your connection and try again.'
+    if (err.includes('500')) return 'CMS server error. Please try again in a few minutes.'
+    if (err.includes('Failed to fetch')) return 'Network error. Please check your internet connection and try again.'
+    return `Something went wrong: ${err}`
+  }
+
+  const friendlyError = getFriendlyError(error)
 
   return (
     <div className="app">
 
-      {/* HEADER */}
       <header className="app-header">
         <div className="header-inner">
           <div className="brand-lockup">
@@ -43,36 +60,41 @@ function App() {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="main">
 
-        {/* STEP 1 — always visible */}
         <SearchPanel onSearch={handleSearch} loading={loading} />
 
-        {/* ERROR MESSAGE */}
-        {error && (
-          <div className="error-bar">
-            ⚠ {error}
+        {/* FRIENDLY ERROR */}
+        {friendlyError && !loading && (
+          <div className="status-bar status-error">
+            <span>⚠</span>
+            <div>
+              <div style={{ fontWeight: '600' }}>{friendlyError}</div>
+              <div style={{ fontSize: '11px', marginTop: '3px', opacity: 0.8 }}>
+                Tip: CCNs are 6-digit numbers. Example: 686123
+              </div>
+            </div>
           </div>
         )}
 
-        {/* LOADING MESSAGE */}
+        {/* LOADING */}
         {loading && (
-          <div className="loading-bar">
-            ⏳ Fetching facility data from CMS...
+          <div className="status-bar status-loading">
+            <div className="spinner" />
+            Fetching facility data from CMS...
           </div>
         )}
 
-        {/* STEP 2 — only shows after facility is loaded */}
-        {facility && (
+        {/* MANUAL INPUTS */}
+        {facility && !loading && (
           <ManualInputs
             values={manualInputs}
             onChange={setManualInputs}
           />
         )}
 
-        {/* STEP 3 — report, only shows after facility is loaded */}
-        {facility && (
+        {/* REPORT */}
+        {facility && !loading && (
           <ReportView
             facility={facility}
             claims={claims}
@@ -85,7 +107,7 @@ function App() {
 
       </main>
 
-      <footer>
+      <footer className="app-footer">
         INFINITE — Managed by MEDELITE · Facility Assessment Report Generator · Data sourced from CMS Provider Data Catalog
       </footer>
 
