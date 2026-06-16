@@ -101,15 +101,6 @@ This is a client-side tool with no SEO requirements. React + Vite gives instant 
 **Why a Vercel Serverless Function for the API?**
 The CMS API enforces CORS restrictions on browser requests. Rather than relying on third-party proxies, I built a lightweight Vercel serverless function that proxies requests server-side — more reliable, faster, and production-grade.
 
-**Why metric cards instead of charts?**
-Charts work best for time-series data. Since each metric has a single current value compared against two benchmarks, color-coded cards communicate performance status more clearly than a bar chart would.
-
-**Why rectangles instead of star characters in the PDF?**
-jsPDF's built-in fonts don't support Unicode star characters without embedding a custom font file. Colored rating squares are cleaner and avoid adding font files to the bundle.
-
-**Why lazy validation on CCN input?**
-Showing errors before the user has finished typing is poor UX. Errors trigger on first submit, then update live as the user corrects their input — the same pattern used by Stripe and Figma.
-
 ---
 
 ## Getting Started
@@ -150,7 +141,6 @@ Open [http://localhost:5173](http://localhost:5173)
 - **Data currency:** The CMS Provider Data Catalog updates quarterly. Star ratings and metrics reflect the most recent CMS data, which may differ from older internal snapshots.
 - **CORS handling:** CMS blocks direct browser requests. In development, a public CORS proxy is used. In production, a Vercel serverless function handles this cleanly.
 - **CCN format:** Validated as exactly 6 numeric digits per CMS specification.
-- **AI assistance:** AI tools were used during development as encouraged in the brief. All code has been reviewed, understood, and can be explained line-by-line.
 
 ---
 
